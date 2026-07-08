@@ -20,15 +20,29 @@ async function guestJwt() {
   return jwtCache.token;
 }
 
-async function txFetch(path) {
+const RETRYABLE = new Set([429, 500, 502, 503, 504]);
+
+async function txFetch(path, attempts = 3) {
   const jwt = await guestJwt();
   const headers = { "Content-Type": "application/json" };
   if (jwt) headers["Authorization"] = `Bearer ${jwt}`;
   if (TXLINE_KEY) headers["X-Api-Token"] = TXLINE_KEY;
   if (!jwt && TXLINE_KEY) headers["Authorization"] = `Bearer ${TXLINE_KEY}`;
-  const res = await fetch(`${TXLINE_BASE}${path}`, { headers });
-  if (!res.ok) throw new Error(`TxLINE ${res.status}: ${path}`);
-  return res.json();
+
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const res = await fetch(`${TXLINE_BASE}${path}`, { headers });
+      if (res.ok) return res.json();
+      lastErr = new Error(`TxLINE ${res.status}: ${path}`);
+      if (!RETRYABLE.has(res.status)) throw lastErr;
+    } catch (e) {
+      lastErr = e;
+    }
+    // backoff with jitter before the next try
+    await new Promise((r) => setTimeout(r, 350 * (i + 1) + Math.random() * 200));
+  }
+  throw lastErr;
 }
 
 async function fixturesSnapshot() {
