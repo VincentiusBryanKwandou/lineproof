@@ -1,5 +1,13 @@
 [
 {
+"scanId": "scan-1784356295970",
+"digest": "ee62b5975028fb2fb732ae28c66db5bb456cf08f7258c9eb50c65ac821227710",
+"matches": 3,
+"flagged": 0,
+"anchored": true,
+"signature": "2jcw3BucjTHSZjP1G9oUJP58s4ZoSLYjDkoPV5Tqej2sz8ZLAbvvaA74LYMWJF4B5X9r7GeezFzwWGnX6mC6gNQG"
+},
+{
 "scanId": "scan-1784329952714",
 "digest": "ff9fdc932fa0bd6c33bcc9ff5cf77720891a90d6998cd0c43db41df868c07870",
 "matches": 1,
